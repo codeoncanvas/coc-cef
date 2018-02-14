@@ -30,7 +30,8 @@
     </platform>
 
     <platform os="macosx">
-
+        <header>src/cocCefWrapper.h</header>
+        <header>src/cocCefWrapper.cpp</header>
         <header>src/browser_client.hpp</header>
         <header>src/render_handler.hpp</header>
         <header>src/process_helper_mac.cpp</header>  <!-- added as a header to prevent adding it to build target -->
