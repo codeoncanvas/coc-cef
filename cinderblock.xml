@@ -7,7 +7,7 @@
     summary="Webviews in Cinder using Chrome Embedded Framework"
     license=""
     url=""
-    git=""
+    git="git@github.com:codeoncanvas/coc-cef.git"
     version=""
     library="https://bitbucket.org/chromiumembedded/cef"
     >
