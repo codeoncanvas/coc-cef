@@ -12,13 +12,11 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
-using namespace ci;
-using namespace ci::app;
 
 class RenderHandler : public CefRenderHandler {
 private:
     int mWidth, mHeight;
-    gl::TextureRef mTex;
+    ci::gl::TextureRef mTex;
     std::unique_ptr<uint8_t> mBuffer;
 
 public:
@@ -26,7 +24,7 @@ public:
         const size_t bufferSize = mWidth * mHeight * 4;
         mBuffer = std::unique_ptr<uint8_t>{new uint8_t[bufferSize]};
         memset(mBuffer.get(), 0, bufferSize);
-        mTex = gl::Texture::create(mBuffer.get(), GL_BGRA, mWidth, mHeight);
+        mTex = ci::gl::Texture::create(mBuffer.get(), GL_BGRA, mWidth, mHeight);
         mTex->setTopDown();  // specified to flip pixels vertically
     }
 
@@ -51,7 +49,7 @@ public:
         mTex->update(buffer, GL_BGRA, GL_UNSIGNED_BYTE, 0, width, height);
     }
 
-    gl::TextureRef getTexture() { return mTex; }
+    ci::gl::TextureRef getTexture() { return mTex; }
 
     void resize(int width, int height) {
         mWidth = width;
