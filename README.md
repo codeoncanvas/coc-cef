@@ -9,7 +9,7 @@ Sample app code is provided in `samples/cocCefSample.cpp`, remember to change `c
 
 
 ## Setup steps for macOS
-- Clone repository
+- Clone repository in `cinder/blocks/` directory
 
 - Run `sh extract.sh` to extract the compressed Chrome Embedded Framework (built for macOS 64bit).
 
@@ -35,11 +35,15 @@ Add Blocks/CoC-CEF/src/process_helper_mac.cpp to the Helper target
 
 ![image4.png](https://raw.githubusercontent.com/codeoncanvas/coc-cef/master/images/image4.png)  
 
-- On main target, under Build Phases -> Copy Files, add Chromium Embedded Framework.framework
+- On the main target, under Build Phases -> Copy Files, add Chromium Embedded Framework.framework
 
 ![image5.png](https://raw.githubusercontent.com/codeoncanvas/coc-cef/master/images/image5.png)
 
-- Build the Helper, Build the main target, and you are good to go!
+- On the main target, under Build Phases -> Target Dependencies, add the Helper target.
+
+![image6.png](https://raw.githubusercontent.com/codeoncanvas/coc-cef/master/images/image6.png)
+
+- Build the main target, and you are good to go!
 
 
 ## Known Issues
