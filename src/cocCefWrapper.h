@@ -40,43 +40,59 @@ namespace coc {
 class CefWrapper {
 
 public:
-	~CefWrapper(){ cleanup(); }
-	void setup(std::string url, ci::ivec2 size);
-	void update();
-	void draw(  ci::vec2 pos = ci::vec2(0)  );
-	void resize( ci::ivec2 size );
-	void cleanup();
+    ~CefWrapper(){ cleanup(); }
+    void setup(std::string url, ci::ivec2 size);
+    void update();
+    void draw(  ci::vec2 pos = ci::vec2(0)  );
+    void resize( ci::ivec2 size );
+    void cleanup();
 
-	ci::gl::TextureRef getTexture();
-	void registerEvents();
+    void executeJS(const std::string& command);
+    void notificationHandler();
 
-	void keyDown( ci::app::KeyEvent event );
-	void keyUp( ci::app::KeyEvent event );
-	void mouseDown( ci::app::MouseEvent event );
-	void mouseUp( ci::app::MouseEvent event );
-	void mouseWheel( ci::app::MouseEvent event );
-	void mouseMove( ci::app::MouseEvent event );
-	void mouseDrag( ci::app::MouseEvent event );
+    ci::gl::TextureRef getTexture();
+    void registerEvents();
+    void unregisterEvents();
+    void onLoadStart();
+    void onLoadEnd(int httpStatusCode);
+
+    template <typename ArgumentsType, class ListenerClass>
+    void bind(const string& functionName, ListenerClass * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&), int prio = OF_EVENT_ORDER_AFTER_APP);
+
+    // Don't call this
+    void bindCallFromJS(CefRefPtr<CefListValue> args);
+
+    //ofEvent<ofxCEFEventArgs> eventFromCEF;
+
+    bool V8ContextCreated = false; // Don't set this
+    bool isReady() const { return V8ContextCreated && renderHandler->initialized && browser(); }
+
+    void keyDown( ci::app::KeyEvent event );
+    void keyUp( ci::app::KeyEvent event );
+    void mouseDown( ci::app::MouseEvent event );
+    void mouseUp( ci::app::MouseEvent event );
+    void mouseWheel( ci::app::MouseEvent event );
+    void mouseMove( ci::app::MouseEvent event );
+    void mouseDrag( ci::app::MouseEvent event );
 
 private:
 
-	CefRefPtr<CefBrowser> mBrowser;
-	CefRefPtr<BrowserClient> mBrowserClient;
-	std::unique_ptr<RenderHandler> mRenderHandler;
+    CefRefPtr<CefBrowser> mBrowser;
+    CefRefPtr<BrowserClient> mBrowserClient;
+    std::unique_ptr<RenderHandler> mRenderHandler;
 
-	static constexpr auto mScrollSensitivity = 50;  // set arbitrarily
-	const std::vector<int> mNonCharKeys = std::vector<int>{
-			ci::app::KeyEvent::KEY_UP, ci::app::KeyEvent::KEY_DOWN,
-			ci::app::KeyEvent::KEY_LEFT, ci::app::KeyEvent::KEY_RIGHT,
-			ci::app::KeyEvent::KEY_HOME, ci::app::KeyEvent::KEY_END,
-			ci::app::KeyEvent::KEY_PAGEUP, ci::app::KeyEvent::KEY_PAGEDOWN,
-			ci::app::KeyEvent::KEY_DELETE, ci::app::KeyEvent::KEY_BACKSPACE};
+    CefRefPtr<CefListValue> mMessageFromJS;
 
-
-};//class CocBrowser
-
-}
+    static constexpr auto mScrollSensitivity = 50;  // set arbitrarily
+    const std::vector<int> mNonCharKeys = std::vector<int>{
+            ci::app::KeyEvent::KEY_UP, ci::app::KeyEvent::KEY_DOWN,
+            ci::app::KeyEvent::KEY_LEFT, ci::app::KeyEvent::KEY_RIGHT,
+            ci::app::KeyEvent::KEY_HOME, ci::app::KeyEvent::KEY_END,
+            ci::app::KeyEvent::KEY_PAGEUP, ci::app::KeyEvent::KEY_PAGEDOWN,
+            ci::app::KeyEvent::KEY_DELETE, ci::app::KeyEvent::KEY_BACKSPACE};
 
 
+}; // class CocBrowser
 
+} // namespace coc
 

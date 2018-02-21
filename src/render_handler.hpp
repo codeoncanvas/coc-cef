@@ -14,11 +14,6 @@
 
 
 class RenderHandler : public CefRenderHandler {
-private:
-    int mWidth, mHeight;
-    ci::gl::TextureRef mTex;
-    std::unique_ptr<uint8_t> mBuffer;
-
 public:
     RenderHandler(int width, int height) : mWidth{width}, mHeight{height} {
         const size_t bufferSize = mWidth * mHeight * 4;
@@ -28,8 +23,9 @@ public:
         mTex->setTopDown();  // specified to flip pixels vertically
     }
 
-    // retrieve the view rectangle which is relative to screen coordinates
-    // returns `true` if the rectangle was provided
+    // Retrieve the view rectangle which is relative to screen coordinates
+    // returns `true` if the rectangle was provided.
+    // See `GetScreenInfo`
     bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect &rect) override {
         rect = CefRect{0, 0, mWidth, mHeight};
         return true;
@@ -55,6 +51,12 @@ public:
         mWidth = width;
         mHeight = height;
     }
+
+private:
+    int mWidth, mHeight;
+    ci::gl::TextureRef mTex;
+    std::unique_ptr<uint8_t> mBuffer;
+
 
     IMPLEMENT_REFCOUNTING(RenderHandler);
 };
