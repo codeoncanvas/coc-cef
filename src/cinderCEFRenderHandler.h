@@ -13,9 +13,9 @@
 #include "cinder/gl/gl.h"
 
 
-class RenderHandler : public CefRenderHandler {
+class CinderCEFRenderHandler : public CefRenderHandler {
 public:
-    RenderHandler(int width, int height) : mWidth{width}, mHeight{height} {
+    CinderCEFRenderHandler(int width, int height) : mWidth{width}, mHeight{height} {
         const size_t bufferSize = mWidth * mHeight * 4;
         mBuffer = std::unique_ptr<uint8_t>{new uint8_t[bufferSize]};
         memset(mBuffer.get(), 0, bufferSize);
@@ -52,13 +52,15 @@ public:
         mHeight = height;
     }
 
+    bool initialized = false;
+
 private:
     int mWidth, mHeight;
     ci::gl::TextureRef mTex;
     std::unique_ptr<uint8_t> mBuffer;
 
 
-    IMPLEMENT_REFCOUNTING(RenderHandler);
+    IMPLEMENT_REFCOUNTING(CinderCEFRenderHandler);
 };
 
 #endif /* RenderHandler_h */

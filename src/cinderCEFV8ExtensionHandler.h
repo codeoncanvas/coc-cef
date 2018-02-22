@@ -5,8 +5,8 @@
 #include <set>
 #include <string>
 
-struct ofxCEFV8ExtensionHandler : public CefV8Handler {
-    ofxCEFV8ExtensionHandler(CefRefPtr<CefApp> app);
+struct CinderCEFV8ExtensionHandler : public CefV8Handler {
+    CinderCEFV8ExtensionHandler(CefRefPtr<CefApp> app);
 
     bool Execute(const CefString &name, CefRefPtr<CefV8Value> object,
             const CefV8ValueList &arguments, CefRefPtr<CefV8Value> &retval,
@@ -17,7 +17,7 @@ struct ofxCEFV8ExtensionHandler : public CefV8Handler {
 private:
     CefRefPtr<CefApp> app;
 
-    IMPLEMENT_REFCOUNTING(ofxCEFV8ExtensionHandler);
+    IMPLEMENT_REFCOUNTING(CinderCEFV8ExtensionHandler);
 };
 
 #endif

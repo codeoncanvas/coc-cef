@@ -19,7 +19,7 @@
 
 #include "cinder/Log.h"
 #include "cinder/Exception.h"
-#include "cocCefWrapper.h"
+#include "cinderCEF.h"
 
 namespace coc {
 
@@ -28,7 +28,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void CefWrapper::setup( string url, ci::ivec2 size ) {
+void CinderCEF::setup( string url, ci::ivec2 size ) {
     // Spoof CEF command-line arguments
     //int argc = 0;
     //char const* argv[] = {  // not sure these are working
@@ -143,28 +143,28 @@ void CefWrapper::setup( string url, ci::ivec2 size ) {
             url, CefBrowserSettings{}, nullptr);
 }
 
-void CefWrapper::registerEvents() {
-    getWindow()->getSignalKeyDown().connect( signals::slot( this, &CefWrapper::keyDown) );
-    getWindow()->getSignalKeyUp().connect( signals::slot( this, &CefWrapper::keyUp) );
-    getWindow()->getSignalMouseDown().connect( signals::slot( this, &CefWrapper::mouseDown) );
-    getWindow()->getSignalMouseUp().connect( signals::slot( this, &CefWrapper::mouseUp) );
-    getWindow()->getSignalMouseWheel().connect( signals::slot( this, &CefWrapper::mouseWheel) );
-    getWindow()->getSignalMouseMove().connect( signals::slot( this, &CefWrapper::mouseMove) );
-    getWindow()->getSignalMouseDrag().connect( signals::slot( this, &CefWrapper::mouseDrag) );
+void CinderCEF::registerEvents() {
+    getWindow()->getSignalKeyDown().connect( signals::slot( this, &CinderCEF::keyDown) );
+    getWindow()->getSignalKeyUp().connect( signals::slot( this, &CinderCEF::keyUp) );
+    getWindow()->getSignalMouseDown().connect( signals::slot( this, &CinderCEF::mouseDown) );
+    getWindow()->getSignalMouseUp().connect( signals::slot( this, &CinderCEF::mouseUp) );
+    getWindow()->getSignalMouseWheel().connect( signals::slot( this, &CinderCEF::mouseWheel) );
+    getWindow()->getSignalMouseMove().connect( signals::slot( this, &CinderCEF::mouseMove) );
+    getWindow()->getSignalMouseDrag().connect( signals::slot( this, &CinderCEF::mouseDrag) );
 }
 
-void CefWrapper::unregisterEvents() {
+void CinderCEF::unregisterEvents() {
     //TODO disconnect signals
-    //getWindow()->getSignalKeyDown().disconnect( signals::slot( this, &CefWrapper::keyDown) );
-    //getWindow()->getSignalKeyUp().disconnect( signals::slot( this, &CefWrapper::keyUp) );
-    //getWindow()->getSignalMouseDown().disconnect( signals::slot( this, &CefWrapper::mouseDown) );
-    //getWindow()->getSignalMouseUp().disconnect( signals::slot( this, &CefWrapper::mouseUp) );
-    //getWindow()->getSignalMouseWheel().disconnect( signals::slot( this, &CefWrapper::mouseWheel) );
-    //getWindow()->getSignalMouseMove().disconnect( signals::slot( this, &CefWrapper::mouseMove) );
-    //getWindow()->getSignalMouseDrag().disconnect( signals::slot( this, &CefWrapper::mouseDrag) );
+    //getWindow()->getSignalKeyDown().disconnect( signals::slot( this, &CinderCEF::keyDown) );
+    //getWindow()->getSignalKeyUp().disconnect( signals::slot( this, &CinderCEF::keyUp) );
+    //getWindow()->getSignalMouseDown().disconnect( signals::slot( this, &CinderCEF::mouseDown) );
+    //getWindow()->getSignalMouseUp().disconnect( signals::slot( this, &CinderCEF::mouseUp) );
+    //getWindow()->getSignalMouseWheel().disconnect( signals::slot( this, &CinderCEF::mouseWheel) );
+    //getWindow()->getSignalMouseMove().disconnect( signals::slot( this, &CinderCEF::mouseMove) );
+    //getWindow()->getSignalMouseDrag().disconnect( signals::slot( this, &CinderCEF::mouseDrag) );
 }
 
-void CefWrapper::keyDown( KeyEvent event ) {
+void CinderCEF::keyDown( KeyEvent event ) {
 
     // Check host is available
     if (mBrowser == nullptr) { return; }
@@ -188,7 +188,7 @@ void CefWrapper::keyDown( KeyEvent event ) {
     browserHost->SendKeyEvent(cefKeyEvent);
 }
 
-void CefWrapper::keyUp( KeyEvent event ) {
+void CinderCEF::keyUp( KeyEvent event ) {
 
     // Check host is available
     if (mBrowser == nullptr) { return; }
@@ -210,7 +210,7 @@ void CefWrapper::keyUp( KeyEvent event ) {
     browserHost->SendKeyEvent(cefKeyEvent);
 }
 
-void CefWrapper::mouseDown( MouseEvent event ) {
+void CinderCEF::mouseDown( MouseEvent event ) {
 
     const auto browserHost = mBrowser->GetHost();
     if (browserHost == nullptr) { return; }
@@ -229,7 +229,7 @@ void CefWrapper::mouseDown( MouseEvent event ) {
     mBrowser->GetHost()->SendMouseClickEvent(cefMouseEvent, mouseButtonType, false, 1);
 }
 
-void CefWrapper::mouseUp( MouseEvent event ) {
+void CinderCEF::mouseUp( MouseEvent event ) {
 
     // Check host is available
     if (mBrowser == nullptr) { return; }
@@ -249,7 +249,7 @@ void CefWrapper::mouseUp( MouseEvent event ) {
     mBrowser->GetHost()->SendMouseClickEvent(cefMouseEvent, mouseButtonType, true, 1);
 }
 
-void CefWrapper::mouseWheel( MouseEvent event ) {
+void CinderCEF::mouseWheel( MouseEvent event ) {
 
     // Check host is available
     if (mBrowser == nullptr) { return; }
@@ -266,7 +266,7 @@ void CefWrapper::mouseWheel( MouseEvent event ) {
     mBrowser->GetHost()->SendMouseWheelEvent(cefMouseEvent, 0, deltaY);
 }
 
-void CefWrapper::mouseMove( MouseEvent event ) {
+void CinderCEF::mouseMove( MouseEvent event ) {
 
     // Check host is available
     if (mBrowser == nullptr) { return; }
@@ -281,16 +281,16 @@ void CefWrapper::mouseMove( MouseEvent event ) {
     browserHost->SendMouseMoveEvent(cefMouseEvent, false);
 }
 
-void CefWrapper::mouseDrag( MouseEvent event ) {
+void CinderCEF::mouseDrag( MouseEvent event ) {
     // not yet implemented, see ClientHandler::StartDragging if required
 }
 
-void CefWrapper::update() {
+void CinderCEF::update() {
     // Single iteration of message loop, does not block
     CefDoMessageLoopWork();
 }
 
-void CefWrapper::draw( ci::vec2  pos ) {
+void CinderCEF::draw( ci::vec2  pos ) {
     if (!isReady()) { return; }
 
     gl::draw(getTexture(), pos);
@@ -298,12 +298,12 @@ void CefWrapper::draw( ci::vec2  pos ) {
     // TODO implement cursor changes, see CefRenderHandler::OnCursorChange
 }
 
-ci::gl::TextureRef CefWrapper::getTexture()
+ci::gl::TextureRef CinderCEF::getTexture()
 {
     return mRenderHandler->getTexture();
 }
 
-void CefWrapper::resize( ci::ivec2 size ) {
+void CinderCEF::resize( ci::ivec2 size ) {
     //TODO this doesn't work fully
 
     mRenderHandler->resize(size.x,size.y);
@@ -316,7 +316,16 @@ void CefWrapper::resize( ci::ivec2 size ) {
     browserHost->WasResized();
 }
 
-void CefWrapper::bindCallFromJS(CefRefPtr<CefListValue> args) {
+void CinderCEF::onLoadStart() {
+
+}
+
+void CinderCEF::onLoadEnd(int httpStatusCode) {
+
+}
+
+
+void CinderCEF::bindCallFromJS(CefRefPtr<CefListValue> args) {
     mMessageFromJS = args;
 
     //TODO ofNotifyEvent(messageFromJS, msg, this);
@@ -329,7 +338,7 @@ void ofxCEF::executeJS(const string& command){
     frame->ExecuteJavaScript(command, frame->GetURL(), 0);
 }
 
-void CefWrapper::cleanup() {
+void CinderCEF::cleanup() {
     unregisterEvents();
 
     // Shut down CEF.
@@ -342,6 +351,6 @@ void CefWrapper::cleanup() {
     //CefShutdown();
 }
 
-CefWrapper::~CefWrapper() { exit(); }
+CinderCEF::~CinderCEF() { exit(); }
 
 } // namespace coc

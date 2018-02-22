@@ -8,9 +8,9 @@
 #include "include/cef_app.h"
 #include "include/cef_client.h"
 
-class cinderCEFClientApp : public CefApp, public CefRenderProcessHandler {
+class CinderCEFClientApp : public CefApp, public CefRenderProcessHandler {
 public:
-    cinderCEFClientApp() : v8handler(new cinderCEFV8ExtensionHandler(this)){};
+    CinderCEFClientApp() : mV8Handler(new CinderCEFV8ExtensionHandler(this)){};
 
     CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() OVERRIDE {
         return this;
@@ -70,10 +70,10 @@ public:
         // command_line->AppendSwitch(touchSimulated);
     }
 
-    CefRefPtr<cinderCEFV8ExtensionHandler> v8handler;
-    CefRefPtr<CefV8Context> v8context;
+    CefRefPtr<CinderCEFV8ExtensionHandler> mV8Handler;
+    CefRefPtr<CefV8Context> mV8Context;
 
-    IMPLEMENT_REFCOUNTING(cinderCEFClientApp);
+    IMPLEMENT_REFCOUNTING(CinderCEFClientApp);
 };
 
 #endif

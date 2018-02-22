@@ -31,16 +31,16 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
-#include "browser_client.hpp"
-#include "render_handler.hpp"
+#include "cinderCEFBrowserClient.h"
+#include "cinderCEFRenderHandler.h"
 
 
 namespace coc {
 
-class CefWrapper {
+class CinderCEF {
 
 public:
-    ~CefWrapper(){ cleanup(); }
+    ~CinderCEF(){ cleanup(); }
     void setup(std::string url, ci::ivec2 size);
     void update();
     void draw(  ci::vec2 pos = ci::vec2(0)  );
@@ -57,15 +57,15 @@ public:
     void onLoadEnd(int httpStatusCode);
 
     template <typename ArgumentsType, class ListenerClass>
-    void bind(const string& functionName, ListenerClass * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&), int prio = OF_EVENT_ORDER_AFTER_APP);
+    //void bind(const std::string& functionName, ListenerClass * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&), int prio = OF_EVENT_ORDER_AFTER_APP);
 
     // Don't call this
     void bindCallFromJS(CefRefPtr<CefListValue> args);
 
     //ofEvent<ofxCEFEventArgs> eventFromCEF;
 
-    bool V8ContextCreated = false; // Don't set this
-    bool isReady() const { return V8ContextCreated && renderHandler->initialized && browser(); }
+    bool mV8ContextCreated = false; // Don't set this
+    bool isReady() const { return mV8ContextCreated && mRenderHandler->initialized && browser(); }
 
     void keyDown( ci::app::KeyEvent event );
     void keyUp( ci::app::KeyEvent event );
@@ -77,9 +77,11 @@ public:
 
 private:
 
+    CefRefPtr<CefBrowser> browser() const { return mBrowserClient->GetBrowser(); }
+
     CefRefPtr<CefBrowser> mBrowser;
-    CefRefPtr<BrowserClient> mBrowserClient;
-    std::unique_ptr<RenderHandler> mRenderHandler;
+    CefRefPtr<CinderCEFBrowserClient> mBrowserClient;
+    std::unique_ptr<CinderCEFRenderHandler> mRenderHandler;
 
     CefRefPtr<CefListValue> mMessageFromJS;
 
@@ -92,7 +94,7 @@ private:
             ci::app::KeyEvent::KEY_DELETE, ci::app::KeyEvent::KEY_BACKSPACE};
 
 
-}; // class CocBrowser
+}; // class cinderCef
 
 } // namespace coc
 

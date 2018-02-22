@@ -3,20 +3,20 @@
 // be found in the LICENSE file.
 
 #include "include/cef_app.h"
-#include "ofxCEFClientApp.h"
+#include "cinderCEFClientApp.h"
 
 //--------------------------------------------------------------
 // Entry point function for sub-processes.
 int main(int argc, char* argv[]){
-    
+
     for (int i = 0; i < argc; i++){
         printf("%s \n", argv[i]);
     }
-    
+
     // Provide CEF with command-line arguments.
     CefMainArgs main_args(argc, argv);
 
-    CefRefPtr<ofxCEFClientApp> app(new ofxCEFClientApp);
+    CefRefPtr<CinderCEFClientApp> app(new CinderCEFClientApp);
     // Execute the sub-process.
     return CefExecuteProcess(main_args, app.get(), NULL);
 }

@@ -4,8 +4,11 @@
 #include "cinderCEFV8ExtensionHandler.h"
 #include "cefListV8Converter.hpp"
 
+CinderCEFV8ExtensionHandler::CinderCEFV8ExtensionHandler(CefRefPtr<CefApp> app){
+    this->app = app;
+}
 
-bool cinderCEFV8ExtensionHandler::Execute(const CefString &name,
+bool CinderCEFV8ExtensionHandler::Execute(const CefString &name,
                                        CefRefPtr<CefV8Value> object,
                                        const CefV8ValueList &arguments,
                                        CefRefPtr<CefV8Value> &retval,
@@ -32,46 +35,48 @@ bool cinderCEFV8ExtensionHandler::Execute(const CefString &name,
         browser->SendProcessMessage(PID_BROWSER, message);
         return true;
     }
-            CefString type;
 
-            if (arguments[1]->IsString()) {
-                type = "string";
-            } else if (arguments[1]->IsDouble()) {
-                type = "double";
-            } else if (arguments[1]->IsInt()) {
-                type = "int";
-            } else if (arguments[1]->IsBool()) {
-                type = "bool";
-            } else {
-                std::cout << "cinderCEFV8ExtensionHandler received a message of unknown type." << std::endl;
-                return false;
-            }
+    CefString type;
 
-            // Create the message object.
-            CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create(type);
+    if (arguments[1]->IsString()) {
+        type = "string";
+    } else if (arguments[1]->IsDouble()) {
+        type = "double";
+    } else if (arguments[1]->IsInt()) {
+        type = "int";
+    } else if (arguments[1]->IsBool()) {
+        type = "bool";
+    } else {
+        std::cout << "CinderCEFV8ExtensionHandler received a message of unknown type." << std::endl;
+        return false;
+    }
 
-            // Retrieve the argument list object.
-            CefRefPtr<CefListValue> args = message->GetArgumentList();
+    // Create the message object.
+    CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create(type);
 
-            // Message mane
-            args->SetString(0, arguments[0]->GetStringValue());
+    // Retrieve the argument list object.
+    CefRefPtr<CefListValue> args = message->GetArgumentList();
 
-            // Message value
-            if (type == "string") {
-                args->SetString(1, arguments[1]->GetStringValue());
-            } else if (type == "double") {
-                args->SetDouble(1, arguments[1]->GetDoubleValue());
-            } else if (type == "int") {
-                args->SetInt(1, arguments[1]->GetIntValue());
-            } else if (type == "bool") {
-                args->SetBool(1, arguments[1]->GetBoolValue());
-            } else {
-                std::cout << "cinderxCEFV8ExtensionHandler received a message of unknown type." << std::endl;
-                return false;
-            }
+    // Message mane
+    args->SetString(0, arguments[0]->GetStringValue());
 
-            // Send message
-            CefRefPtr<CefBrowser> browser = CefV8Context::GetCurrentContext()->GetBrowser();
-            browser->SendProcessMessage(PID_BROWSER, message);
-            return true;
+    // Message value
+    if (type == "string") {
+        args->SetString(1, arguments[1]->GetStringValue());
+    } else if (type == "double") {
+        args->SetDouble(1, arguments[1]->GetDoubleValue());
+    } else if (type == "int") {
+        args->SetInt(1, arguments[1]->GetIntValue());
+    } else if (type == "bool") {
+        args->SetBool(1, arguments[1]->GetBoolValue());
+    } else {
+        std::cout << "cinderxCEFV8ExtensionHandler received a message of unknown type." << std::endl;
+        return false;
+    }
+
+    // Send message
+    CefRefPtr<CefBrowser> browser = CefV8Context::GetCurrentContext()->GetBrowser();
+    browser->SendProcessMessage(PID_BROWSER, message);
+
+    return true;
 }

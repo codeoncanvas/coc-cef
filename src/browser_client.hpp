@@ -9,7 +9,7 @@ class BrowserClient : public CefClient {
 public:
     BrowserClient(CefRenderHandler *renderHandler)
             : mRenderHandler(renderHandler) {}
-    
+
     virtual CefRefPtr<CefRenderHandler> GetRenderHandler() override {
         return mRenderHandler;
     }
