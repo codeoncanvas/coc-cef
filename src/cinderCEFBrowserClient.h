@@ -2,17 +2,20 @@
 #define BROWSER_CLIENT_H
 
 #include "cef_client.h"
+#include "cinderCEF.h"
 
 #include "cinderCEFRenderHandler.h"
 
-class CinderCEF;
+namespace coc {
+    class CinderCEF;
+}
 
 class CinderCEFBrowserClient : public CefClient,
                                public CefLoadHandler,
                                public CefLifeSpanHandler {
 public:
     CinderCEFBrowserClient(
-            CinderCEF *mParent, CinderCEFRenderHandler *renderHandler);
+            coc::CinderCEF *mParent, CinderCEFRenderHandler *renderHandler);
 
     virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE;
 
@@ -38,7 +41,7 @@ public:
 
 private:
     CefRefPtr<CefRenderHandler> mHandler;
-    CinderCEF *mParent;
+    coc::CinderCEF *mParent;
 
     CefRefPtr<CefBrowser> mBrowser;
     int mBrowserId;

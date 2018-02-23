@@ -4,7 +4,7 @@
 #include "cinder/Log.h"
 
 CinderCEFBrowserClient::CinderCEFBrowserClient(
-        CinderCEF *parent, CinderCEFRenderHandler *renderHandler) {
+                                               coc::CinderCEF *parent, CinderCEFRenderHandler *renderHandler) {
     mParent = parent;
     mHandler = renderHandler;
 }
@@ -44,7 +44,7 @@ bool CinderCEFBrowserClient::OnProcessMessageReceived(
 
     std::string jsBindPrefix = "js-bind-";
     if (name.compare(0, jsBindPrefix.size(), jsBindPrefix) == 0) {
-        mParent->bindCallFromJS(args);
+        //mParent->bindCallFromJS(args);
         return true;
     } else if (name == "OnV8ContextCreated") {
         mParent->mV8ContextCreated = true;

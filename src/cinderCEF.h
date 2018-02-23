@@ -31,6 +31,7 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
+#include "cef_helpers.h"
 #include "cinderCEFBrowserClient.h"
 #include "cinderCEFRenderHandler.h"
 

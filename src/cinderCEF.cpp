@@ -99,6 +99,10 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
     cefSettings.remote_debugging_port = 8088;
     // On Windows this leads to:
     // tcp_socket_win.cc bind() retunred an error: an attempt was made to access a socket in a way forbidden by its access permissions
+
+#else
+    CefMainArgs mainArgs{};
+
 #endif
 
     // This could be used on windows, could improve performance
@@ -114,8 +118,8 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
     const auto didInitialize = CefInitialize(mainArgs, cefSettings, nullptr, nullptr);
     if (not didInitialize) { throw ci::Exception{"CEF process execution failed"}; }
 
-    mRenderHandler = std::unique_ptr<RenderHandler>{
-            new RenderHandler{ size.x, size.y } };
+    mRenderHandler = std::unique_ptr<CinderCEFRenderHandler>{
+        new CinderCEFRenderHandler{ size.x, size.y } };
 
     CefWindowInfo windowInfo;
 
@@ -138,7 +142,7 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
     browserSettings.web_security = STATE_DISABLED;
 
     //TODO reconcile with ofxCEF
-    mBrowserClient = new BrowserClient{mRenderHandler.get()};
+    mBrowserClient = new CinderCEFBrowserClient{this, mRenderHandler.get()};
     mBrowser = CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(),
             url, CefBrowserSettings{}, nullptr);
 }
@@ -324,14 +328,14 @@ void CinderCEF::onLoadEnd(int httpStatusCode) {
 
 }
 
+//void CinderCEF::bindCallFromJS(CefRefPtr<CefListValue> args);
+//void CinderCEF::bindCallFromJS(CefRefPtr<CefListValue> args) {
+//    mMessageFromJS = args;
+//
+//    //TODO ofNotifyEvent(messageFromJS, msg, this);
+//}
 
-void CinderCEF::bindCallFromJS(CefRefPtr<CefListValue> args) {
-    mMessageFromJS = args;
-
-    //TODO ofNotifyEvent(messageFromJS, msg, this);
-}
-
-void ofxCEF::executeJS(const string& command){
+void CinderCEF::executeJS(const string& command){
     if (mBrowser == nullptr) { return; }
 
     CefRefPtr<CefFrame> frame = browser()->GetMainFrame();
@@ -350,7 +354,5 @@ void CinderCEF::cleanup() {
     // http://www.magpcss.org/ceforum/viewtopic.php?f=6&t=11441&p=24037&hilit=AutoreleasePoolPage#p24037
     //CefShutdown();
 }
-
-CinderCEF::~CinderCEF() { exit(); }
 
 } // namespace coc
