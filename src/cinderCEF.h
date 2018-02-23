@@ -41,10 +41,10 @@ namespace coc {
 class CinderCEF {
 
 public:
-    ~CinderCEF(){ cleanup(); }
+    ~CinderCEF() { cleanup(); }
     void setup(std::string url, ci::ivec2 size);
     void update();
-    void draw(  ci::vec2 pos = ci::vec2(0)  );
+    void draw(ci::vec2 pos = ci::vec2(0));
     void resize( ci::ivec2 size );
     void cleanup();
 
