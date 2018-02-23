@@ -17,8 +17,8 @@
  *
  **/
 
-#include "cinder/Log.h"
-#include "cinder/Exception.h"
+//#include "cinder/Log.h"
+#include <exception>
 #include "cinderCEF.h"
 
 namespace coc {
@@ -54,7 +54,8 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
     CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
     command_line->InitFromString(::GetCommandLineW());
 
-    CI_LOG_I("Args: " << command_line->GetCommandLineString().ToString());
+    //CI_LOG_I("Args: " << command_line->GetCommandLineString().ToString());
+    std::cout << "Args: " << command_line->GetCommandLineString().ToString() << '\n';
 
     // Create a ClientApp of the correct type.
     CefRefPtr<CefApp> app;
@@ -81,7 +82,7 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
     }
 
     const auto didExecute = CefExecuteProcess(mainArgs, nullptr, nullptr);
-    if (not didExecute) { throw ci::Exception{"CEF process execution failed"}; }
+    if (not didExecute) { throw std::exception{"CEF process execution failed"}; }
 
 #endif // defined(TARGET_WIN32)
 
@@ -116,7 +117,7 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
     //cefSettings.log_severity = LOGSEVERITY_VERBOSE;
 
     const auto didInitialize = CefInitialize(mainArgs, cefSettings, nullptr, nullptr);
-    if (not didInitialize) { throw ci::Exception{"CEF process execution failed"}; }
+    if (not didInitialize) { throw exception{"CEF process execution failed"}; }
 
     mRenderHandler = std::unique_ptr<CinderCEFRenderHandler>{
         new CinderCEFRenderHandler{ size.x, size.y } };

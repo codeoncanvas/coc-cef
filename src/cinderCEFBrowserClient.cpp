@@ -1,7 +1,7 @@
 #include "include/wrapper/cef_helpers.h"
 #include "cinderCEF.h"
 #include "cinderCEFBrowserClient.h"
-#include "cinder/Log.h"
+//#include "cinder/Log.h"
 
 CinderCEFBrowserClient::CinderCEFBrowserClient(
                                                coc::CinderCEF *parent, CinderCEFRenderHandler *renderHandler) {
@@ -40,7 +40,8 @@ bool CinderCEFBrowserClient::OnProcessMessageReceived(
     std::string name = message->GetName().ToString();
 
     //ofLogVerbose() << "Message: " << name << " ; " << args;
-    CI_LOG_V("Message: " << name << " ; " << args);
+    //CI_LOG_V("Message: " << name << " ; " << args);
+    std::cout << "Message: " << name << " ; " << args << '\n';
 
     std::string jsBindPrefix = "js-bind-";
     if (name.compare(0, jsBindPrefix.size(), jsBindPrefix) == 0) {

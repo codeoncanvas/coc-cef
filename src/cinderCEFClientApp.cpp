@@ -1,6 +1,7 @@
 #include <string>
+#include <iostream>
 
-#include "cinder/Log.h"
+//#include "cinder/Log.h"
 #include "cinderCEFClientApp.h"
 #include "cef_build.h"
 
@@ -22,7 +23,8 @@ void CinderCEFClientApp::OnContextCreated(CefRefPtr<CefBrowser> browser,
     // Add the "myfunc" function to the "window" object.
     // globalObject->SetValue("myfunc", func, V8_PROPERTY_ATTRIBUTE_NONE);
 
-    CI_LOG_I("OnContextCreated\n");
+    //CI_LOG_I("OnContextCreated\n");
+    std::cout << "OnContextCreated\n";
 
     // Tell browser that V8 Context was created
     CefRefPtr<CefProcessMessage> message =
@@ -52,7 +54,8 @@ bool CinderCEFClientApp::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
     // Retrieve message name
     std::string name = message->GetName().ToString();
 
-    CI_LOG_I("Renderer received message: " << name);
+    //CI_LOG_I("Renderer received message: " << name);
+    std::cout << "Renderer received message: " << name << '\n';
 
     if (name == "js-make-bind") {
 
@@ -61,15 +64,19 @@ bool CinderCEFClientApp::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
         // CefRefPtr<CefV8Context> mV8Context =
         // CefV8Context::GetCurrentContext();
 
-        CI_LOG_I("Context is valid: " << mV8Context.get());
+        //CI_LOG_I("Context is valid: " << mV8Context.get());
+        std::cout << "Context is valid: " << mV8Context.get() << '\n';
         if (mV8Context.get()) {
 
-            CI_LOG_I("arg size: " << args->GetSize());
+            //CI_LOG_I("arg size: " << args->GetSize());
+            std::cout << "arg size: " << args->GetSize() << '\n';
             std::string jsFunctionName = args->GetString(0).ToString();
 
-            CI_LOG_I("Context is valid: " << mV8Context->IsValid());
+            //CI_LOG_I("Context is valid: " << mV8Context->IsValid());
+            std::cout << "Context is valid: " << mV8Context->IsValid() << '\n';
 
-            CI_LOG_I("Context enter: " << mV8Context->Enter());
+            //CI_LOG_I("Context enter: " << mV8Context->Enter());
+            std::cout << "Context enter: " << mV8Context->Enter() << '\n';
 
             CefRefPtr<CefV8Value> globalObject = mV8Context->GetGlobal();
 
@@ -85,7 +92,8 @@ bool CinderCEFClientApp::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
 
             mV8Handler->bindJSFunctionNames.insert(jsFunctionName);
 
-            CI_LOG_I("Created js function " << jsFunctionName);
+            //CI_LOG_I("Created js function " << jsFunctionName);
+            std::cout << "Created js function " << jsFunctionName << '\n';
 
             return true;
         }

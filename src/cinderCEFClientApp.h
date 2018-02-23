@@ -2,8 +2,9 @@
 #define CINDERCEFCLIENTAPP_H
 
 #include <string>
+#include <iostream>
 
-#include "cinder/Log.h"
+//#include "cinder/Log.h"
 #include "cinderCEFV8ExtensionHandler.h"
 #include "include/cef_app.h"
 #include "include/cef_client.h"
@@ -45,8 +46,10 @@ public:
         command_line->AppendSwitch(frameScheduling);
 #endif
 
-        CI_LOG_I("Args (OnBeforeCommandLineProcessing): "
-                << command_line->GetCommandLineString().ToString());
+        //CI_LOG_I("Args (OnBeforeCommandLineProcessing): "
+        //        << command_line->GetCommandLineString().ToString());
+        std::cout << "Args (OnBeforeCommandLineProcessing): "
+                << command_line->GetCommandLineString().ToString() << '\n';
 
         // CefString singleProcess(L"-single-process");
         // command_line->AppendSwitch(singleProcess);

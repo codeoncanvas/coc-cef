@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "cinder/Log.h"
+//#include "cinder/Log.h"
 #include "cinderCEFV8ExtensionHandler.h"
 #include "cefListV8Converter.hpp"
 
@@ -15,10 +15,11 @@ bool CinderCEFV8ExtensionHandler::Execute(const CefString &name,
                                        CefString &exception){
 
     std::string functionName = name;
-    CI_LOG_I("Execute name: " << functionName);
+    //CI_LOG_I("Execute name: " << functionName);
+    std::cout << "Execute name: " << functionName << '\n';
 
     const auto found = bindJSFunctionNames.find(functionName);
-    if (found != bindJSFunctionNames.cend()) {
+    if (found != bindJSFunctionNames.end()) {
 
         // Create the message object with a prefix + name of the function.
         // There is probably a more efficient way to combine these
