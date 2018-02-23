@@ -19,6 +19,13 @@
 
 //#include "cinder/Log.h"
 #include <exception>
+#define TARGET_OSX CINDER_COCOA
+#define TARGET_WIN32 CINDER_MSW
+
+#if defined(TARGET_OSX)
+#include <Cocoa/Cocoa.h>
+#endif
+
 #include "cinderCEF.h"
 
 namespace coc {
@@ -28,14 +35,15 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void CinderCEF::setup( string url, ci::ivec2 size ) {
-    // Spoof CEF command-line arguments
-    //int argc = 0;
-    //char const* argv[] = {  // not sure these are working
-    //        "off-screen-rendering-enabled", "disable-gpu", "disable-gpu-compositing",
-    //        "enable-begin-frame-scheduling", "enable-media-stream"};
+void CinderCEF::setup(string url, ci::ivec2 size) {
 
 #if defined(TARGET_OSX)
+    // Spoof CEF command-line arguments
+    int argc = 0;
+    char const* argv[] = {  // not sure these are working
+            "off-screen-rendering-enabled", "disable-gpu", "disable-gpu-compositing",
+            "enable-begin-frame-scheduling", "enable-media-stream"};
+
     CefMainArgs mainArgs{argc, const_cast<char **>(argv)};
 
 #elif defined(TARGET_WIN32)
@@ -63,10 +71,11 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
     // The command-line flag won't be specified for the browser process.
     if (command_line->HasSwitch(kProcessType)) {
         const std::string& process_type = command_line->GetSwitchValue(kProcessType);
-        ofLogNotice() << "Process type: " << process_type;
+        //ofLogNotice() << "Process type: " << process_type;
+        CI_LOG_I("Process type: " << process_type);
 
         if (process_type == kRendererProcess) {
-            app = new ofxCEFClientApp();
+            app = new CinderCEFClientApp();
 
 //#if defined(OS_LINUX)
 //        } else if (process_type == kZygoteProcess) {
@@ -104,7 +113,7 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
 #else
     CefMainArgs mainArgs{};
 
-#endif
+#endif // defined(TARGET_OSX)
 
     // This could be used on windows, could improve performance
     // If you enable this, 'CefDoMessageLoopWork()' should not be called
@@ -117,22 +126,28 @@ void CinderCEF::setup( string url, ci::ivec2 size ) {
     //cefSettings.log_severity = LOGSEVERITY_VERBOSE;
 
     const auto didInitialize = CefInitialize(mainArgs, cefSettings, nullptr, nullptr);
-    if (not didInitialize) { throw exception{"CEF process execution failed"}; }
+    if (not didInitialize) { throw std::exception{"CEF process execution failed"}; }
 
     mRenderHandler = std::unique_ptr<CinderCEFRenderHandler>{
-        new CinderCEFRenderHandler{ size.x, size.y } };
+        new CinderCEFRenderHandler{size.x, size.y}};
 
     CefWindowInfo windowInfo;
 
 #if defined(TARGET_OSX)
+    NSWindow * cocoaWindow =  static_cast<NSWindow *>(getWindow()->getNative());
+    [cocoaWindow setReleasedWhenClosed:NO];
+
+    NSView * view =  [cocoaWindow contentView];
+
     // in linux set a gtk widget, in windows a hwnd. If not available set
     // nullptr - may cause some render errors, in context-menu and plugins.
     // false means no transparency (site background colour)
-    windowInfo.SetAsWindowless(nullptr, false);
+    windowInfo.SetAsWindowless(nullptr);
+    //windowInfo.SetAsWindowless(view);
 
 #elif defined(TARGET_WIN32)
-    HWND hWnd = ofGetWin32Window();
-    windowInfo.SetAsWindowless(hWnd);
+    //HWND hWnd = static_cast<HWND>(getWindow()->getNative());
+    //windowInfo.SetAsWindowless(hWnd);
 
 #endif // defined(TARGET_WIN32)
 
