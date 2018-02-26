@@ -17,10 +17,11 @@
  *
  **/
 
-//#include "cinder/Log.h"
-#include <exception>
 #define TARGET_OSX CINDER_COCOA
 #define TARGET_WIN32 CINDER_MSW
+
+//#include "cinder/Log.h"
+#include <stdexcept>
 
 #if defined(TARGET_OSX)
 #include <Cocoa/Cocoa.h>
@@ -91,7 +92,7 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     }
 
     const auto didExecute = CefExecuteProcess(mainArgs, nullptr, nullptr);
-    if (not didExecute) { throw std::exception{"CEF process execution failed"}; }
+    if (not didExecute) { throw std::runtime_error{"CEF process execution failed"}; }
 
 #endif // defined(TARGET_WIN32)
 
@@ -126,7 +127,7 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     //cefSettings.log_severity = LOGSEVERITY_VERBOSE;
 
     const auto didInitialize = CefInitialize(mainArgs, cefSettings, nullptr, nullptr);
-    if (not didInitialize) { throw std::exception{"CEF process execution failed"}; }
+    if (not didInitialize) { throw std::runtime_error{"CEF process execution failed"}; }
 
     mRenderHandler = std::unique_ptr<CinderCEFRenderHandler>{
         new CinderCEFRenderHandler{size.x, size.y}};
@@ -142,8 +143,8 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     // in linux set a gtk widget, in windows a hwnd. If not available set
     // nullptr - may cause some render errors, in context-menu and plugins.
     // false means no transparency (site background colour)
-    windowInfo.SetAsWindowless(nullptr);
-    //windowInfo.SetAsWindowless(view);
+    //windowInfo.SetAsWindowless(nullptr);
+    windowInfo.SetAsWindowless(view);
 
 #elif defined(TARGET_WIN32)
     //HWND hWnd = static_cast<HWND>(getWindow()->getNative());
