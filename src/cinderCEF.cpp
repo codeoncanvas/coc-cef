@@ -31,24 +31,17 @@
 
 namespace coc {
 
-
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void CinderCEF::setup(string url, ci::ivec2 size) {
+void initCinderCEF(int argc, char **argv) {
 
 #if defined(TARGET_OSX)
-    // Spoof CEF command-line arguments
-    int argc = 0;
-    char const* argv[] = {  // not sure these are working
-            "off-screen-rendering-enabled", "disable-gpu", "disable-gpu-compositing",
-            "enable-begin-frame-scheduling", "enable-media-stream"};
-
-    CefMainArgs mainArgs{argc, const_cast<char **>(argv)};
+    CefMainArgs mainArgs(argc, argv);
 
 #elif defined(TARGET_WIN32)
-    CefMainArgs main_args(::GetModuleHandle(NULL));
+    CefMainArgs mainArgs(::GetModuleHandle(NULL));
 
     // These flags must match the Chromium values.
     const char kProcessType[] = "type";
@@ -57,22 +50,21 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
 //#if defined(OS_LINUX)
 //    const char kZygoteProcess[] = "zygote";
 //
-//#endif
+//#endif // defined(OS_LINUX)
 
     // Parse command-line arguments.
     CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
     command_line->InitFromString(::GetCommandLineW());
 
-    //CI_LOG_I("Args: " << command_line->GetCommandLineString().ToString());
     std::cout << "Args: " << command_line->GetCommandLineString().ToString() << '\n';
 
     // Create a ClientApp of the correct type.
+
     CefRefPtr<CefApp> app;
 
     // The command-line flag won't be specified for the browser process.
     if (command_line->HasSwitch(kProcessType)) {
         const std::string& process_type = command_line->GetSwitchValue(kProcessType);
-        //ofLogNotice() << "Process type: " << process_type;
         CI_LOG_I("Process type: " << process_type);
 
         if (process_type == kRendererProcess) {
@@ -91,16 +83,15 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
         //app = new ClientAppBrowser();
     }
 
-    const auto didExecute = CefExecuteProcess(mainArgs, nullptr, nullptr);
-    if (not didExecute) { throw std::runtime_error{"CEF process execution failed"}; }
+    // Execute the secondary process, if any.
+    int exitCode = CefExecuteProcess(mainArgs, app, NULL);
+    if (exitCode >= 0) { throw std::runtime_error{"CEF process execution failed"}; }
 
 #endif // defined(TARGET_WIN32)
 
-    // Specify CEF global cefSettings here.
-    // checkout detailed cefSettings options:
-    // http://magpcss.org/ceforum/apidocs/projects/%28default%29/_cef_settings_t.html
-    CefSettings cefSettings;
+    //CefRefPtr<ofxCEFClientApp> app(new ofxCEFClientApp);
 
+    CefSettings cefSettings;
     cefSettings.background_color = 0xFFFF00FF;
     cefSettings.single_process = false;
     cefSettings.windowless_rendering_enabled = true;
@@ -110,11 +101,7 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     cefSettings.remote_debugging_port = 8088;
     // On Windows this leads to:
     // tcp_socket_win.cc bind() retunred an error: an attempt was made to access a socket in a way forbidden by its access permissions
-
-#else
-    CefMainArgs mainArgs{};
-
-#endif // defined(TARGET_OSX)
+#endif
 
     // This could be used on windows, could improve performance
     // If you enable this, 'CefDoMessageLoopWork()' should not be called
@@ -126,8 +113,14 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     // Default is LOGSEVERITY_INFO
     //cefSettings.log_severity = LOGSEVERITY_VERBOSE;
 
+
+    // Initialize CEF
     const auto didInitialize = CefInitialize(mainArgs, cefSettings, nullptr, nullptr);
     if (not didInitialize) { throw std::runtime_error{"CEF process execution failed"}; }
+}
+
+
+void CinderCEF::setup(string url, ci::ivec2 size) {
 
     mRenderHandler = std::unique_ptr<CinderCEFRenderHandler>{
         new CinderCEFRenderHandler{size.x, size.y}};
@@ -162,6 +155,8 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     mBrowserClient = new CinderCEFBrowserClient{this, mRenderHandler.get()};
     mBrowser = CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(),
             url, CefBrowserSettings{}, nullptr);
+
+    if (!mBrowserClient) { std::cout << "client pointer is null"; }
 }
 
 void CinderCEF::registerEvents() {

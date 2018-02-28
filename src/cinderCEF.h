@@ -38,6 +38,8 @@
 
 namespace coc {
 
+void initCinderCEF(int argc, char **argv);
+
 class CinderCEF {
 
 public:
