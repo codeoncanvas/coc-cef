@@ -53,7 +53,7 @@ public:
     void executeJS(const std::string& command);
     void notificationHandler();
 
-    //ci::gl::TextureRef getTexture();
+    ci::gl::TextureRef getTexture();
     void registerEvents();
     void unregisterEvents();
     void onLoadStart();
@@ -68,7 +68,7 @@ public:
     //ofEvent<ofxCEFEventArgs> eventFromCEF;
 
     bool mV8ContextCreated = false; // Don't set this
-    bool isReady() const { return mV8ContextCreated && mRenderHandler->initialized && browser(); }
+    bool isReady() const { return mV8ContextCreated; } //&& mRenderHandler->initialized && browser(); }
 
     void keyDown( ci::app::KeyEvent event );
     void keyUp( ci::app::KeyEvent event );
@@ -87,7 +87,7 @@ private:
 
     CefRefPtr<CefBrowser> mBrowser;
     CefRefPtr<CinderCEFBrowserClient> mBrowserClient;
-    std::unique_ptr<CinderCEFRenderHandler> mRenderHandler;
+    CinderCEFRenderHandler* mRenderHandler;
 
     CefRefPtr<CefListValue> mMessageFromJS;
 

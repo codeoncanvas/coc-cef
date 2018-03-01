@@ -122,12 +122,16 @@ void initCinderCEF(int argc, char **argv) {
     if (not didInitialize) { throw std::runtime_error{"CEF process execution failed"}; }
 }
 
+void CinderCEF::update() {
+    // Single iteration of message loop, does not block
+    CefDoMessageLoopWork();
+}
+
 
 void CinderCEF::setup(string url, ci::ivec2 size) {
 
     CefWindowInfo windowInfo;
-    mRenderHandler = std::unique_ptr<CinderCEFRenderHandler>{
-            new CinderCEFRenderHandler{}};
+    mRenderHandler = new CinderCEFRenderHandler{};
 
 #if defined(TARGET_OSX)
 
@@ -136,7 +140,6 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     [cocoaWindow setReleasedWhenClosed:NO];
     windowInfo.SetAsWindowless(view);
 
-
 #elif defined(TARGET_WIN32)
     HWND hWnd = ofGetWin32Window();
     windowInfo.SetAsWindowless(hWnd);
@@ -144,27 +147,25 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
 
 
     if (size.x <= 0 && size.y <= 0) {
-        fixedSize = true;//todo: false once resize enabled
         width_ = size.x;
         height_ = size.y;
 
 #if defined(TARGET_OSX)
-        if (mRenderHandler->bIsRetinaDisplay) { //todo: add
-            width_ = size.x*2;
-            height_ = size.y*2;
-        }
+//        if (mRenderHandler->bIsRetinaDisplay) { //todo: add
+//            width_ = size.x*2;
+//            height_ = size.y*2;
+//        }
 #endif
 //        enableResize(); //todo: register resize event
     }
     else {
-        fixedSize = true;
         width_ = size.x;
         height_ = size.y;
     }
 
     // Tell the mRenderHandler about the size
     // Do it before the using it in the browser client
-    mRenderHandler->reshape(width_, height_); //todo: equivalent needed?
+    //mRenderHandler->reshape(width_, height_); //todo: equivalent needed?
 
 
     CefBrowserSettings settings;
@@ -173,10 +174,10 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     settings.background_color = 0x00FFFFFF;
     settings.web_security = STATE_DISABLED;
 
-    mBrowserClient = new CinderCEFBrowserClient{this, mRenderHandler.get()};
+    mBrowserClient = new CinderCEFBrowserClient{this, mRenderHandler};
     CefBrowserHost::CreateBrowser(windowInfo, mBrowserClient.get(), url, settings, NULL);
     mBrowser = CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(),
-            url, CefBrowserSettings{}, nullptr);
+            url, settings, nullptr);
 
     if(!mBrowserClient) { CI_LOG_E( "client pointer is NULL" ); }
 }
@@ -323,41 +324,36 @@ void CinderCEF::mouseDrag( MouseEvent event ) {
     // not yet implemented, see ClientHandler::StartDragging if required
 }
 
-void CinderCEF::update() {
-    // Single iteration of message loop, does not block
-    CefDoMessageLoopWork();
-}
-
 void CinderCEF::draw( ci::vec2  pos ) {
     if (!isReady()) { return; }
 
-    int x = 0;
-    int y = 0;
-    int w = width_;
-    int h = height_;
-
-    gl::VertBatchRef vb = gl::VertBatch::create(GL_TRIANGLE_STRIP);
-    vb->vertex( vec2(x,y) );
-    vb->texCoord( vec2(0,0) );
-    vb->vertex( vec2(x+w,y) );
-    vb->texCoord( vec2(1,0) );
-    vb->vertex( vec2(x,y+h) );
-    vb->texCoord( vec2(0,1) );
-    vb->vertex( vec2(x+w,y+h) );
-    vb->texCoord( vec2(1,1) );
-
-    gl::pushModelMatrix();
-    
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, mRenderHandler->texture_id_);
-    // Use Texture Filtering GL_LINEAR
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    vb->draw();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_TEXTURE_2D);
-
-    gl::popModelMatrix();
+//    int x = 0;
+//    int y = 0;
+//    int w = width_;
+//    int h = height_;
+//
+//    gl::VertBatchRef vb = gl::VertBatch::create(GL_TRIANGLE_STRIP);
+//    vb->vertex( vec2(x,y) );
+//    vb->texCoord( vec2(0,0) );
+//    vb->vertex( vec2(x+w,y) );
+//    vb->texCoord( vec2(1,0) );
+//    vb->vertex( vec2(x,y+h) );
+//    vb->texCoord( vec2(0,1) );
+//    vb->vertex( vec2(x+w,y+h) );
+//    vb->texCoord( vec2(1,1) );
+//
+//    gl::pushModelMatrix();
+//
+//    glEnable(GL_TEXTURE_2D);
+//    glBindTexture(GL_TEXTURE_2D, mRenderHandler->texture_id_);
+//    // Use Texture Filtering GL_LINEAR
+//    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    vb->draw();
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//    glDisable(GL_TEXTURE_2D);
+//
+//    gl::popModelMatrix();
 
     // TODO implement cursor changes, see CefRenderHandler::OnCursorChange
 }
@@ -366,11 +362,11 @@ void CinderCEF::draw( ci::vec2  pos ) {
 //{
 //    return mRenderHandler->getTexture();
 //}
-//
+
 void CinderCEF::resize( ci::ivec2 size ) {
     //TODO this doesn't work fully
 
-    mRenderHandler->reshape(size.x,size.y);
+    //mRenderHandler->reshape(size.x,size.y);
 
     // Check host is available
     if (mBrowser == nullptr) { return; }
