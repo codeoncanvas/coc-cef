@@ -1,66 +1,66 @@
-#ifndef RenderHandler_h
-#define RenderHandler_h
+#ifndef RENDER_HANDLER_H
+#define RENDER_HANDLER_H
 
-#include <memory>       // unique_ptr
-#include <cstdint>      // uint8_t
+//#include "ofMain.h"
 
 #include <cef_app.h>
 #include <cef_client.h> // IMPLEMENT_REFCOUNTING
 #include <cef_render_handler.h>
 
-#include "cinder/app/App.h"
-#include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 
+//--------------------------------------------------------------
+class CinderCEFRenderHandler : public CefRenderHandler
+{
 
-class CinderCEFRenderHandler : public CefRenderHandler {
 public:
-    CinderCEFRenderHandler(int width, int height) : mWidth{width}, mHeight{height} {
-        const size_t bufferSize = mWidth * mHeight * 4;
-        mBuffer = std::unique_ptr<uint8_t>{new uint8_t[bufferSize]};
-        memset(mBuffer.get(), 0, bufferSize);
-        mTex = ci::gl::Texture::create(mBuffer.get(), GL_BGRA, mWidth, mHeight);
-        mTex->setTopDown();  // specified to flip pixels vertically
-    }
 
-    // Retrieve the view rectangle which is relative to screen coordinates
-    // returns `true` if the rectangle was provided.
-    // See `GetScreenInfo`
-    bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect &rect) override {
-        rect = CefRect{0, 0, mWidth, mHeight};
-        return true;
-    }
+    CinderCEFRenderHandler();
 
-    // Called when an element should be painted. Pixel values passed to this
-    // method are scaled relative to the view coordinates based on the value of
-    // `CefScreenInfo.device_scale_factor` returned from `GetScreenInfo`.
-    // type indicates whether the element is the view or the popup widget.
-    // @buffer contains the pixel data for the whole image.
-    // @dirtyRects contains the set of rectangles in pixel coordinates that need
-    // to be repainted.
-    // buffer will be @width * @height * 4 bytes in size and represent a BGRA
-    // image with an upper-left origin
-    void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
-            const RectList &dirtyRects, const void *buffer, int width, int height) override {
-        mTex->update(buffer, GL_BGRA, GL_UNSIGNED_BYTE, 0, width, height);
-    }
+    bool initialized;
+    bool bIsRetinaDisplay;
 
-    ci::gl::TextureRef getTexture() { return mTex; }
+    bool bIsShuttingDown;
 
-    void resize(int width, int height) {
-        mWidth = width;
-        mHeight = height;
-    }
 
-    bool initialized = false;
+    void init(void);
+    void draw(void);
+    void reshape(int, int);
+    void render();
 
-private:
-    int mWidth, mHeight;
-    ci::gl::TextureRef mTex;
-    std::unique_ptr<uint8_t> mBuffer;
+
+    bool GetScreenInfo(CefRefPtr<CefBrowser> browser, CefScreenInfo& screen_info) OVERRIDE;
+    bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect &rect) OVERRIDE;
+    void OnPaint(CefRefPtr<CefBrowser> browser,
+                 PaintElementType type,
+                 const RectList &dirtyRects,
+                 const void* buffer,
+                 int width,
+                 int height) OVERRIDE;
+    const CefRect& popup_rect() const { return popup_rect_; }
+    const CefRect& original_popup_rect() const { return original_popup_rect_; }
+    CefRect GetPopupRectInWebView(const CefRect& original_rect);
+    void ClearPopupRects();
+    void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
+    void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
+
+
+  //private:
+
+    CefRect popup_rect_;
+    CefRect original_popup_rect_;
+
+    int w, h;
+    bool transparent_;
+    bool show_update_rect_;
+    bool initialized_;
+    unsigned int texture_id_;
+    int view_width_;
+    int view_height_;
+    CefRect update_rect_;
 
 
     IMPLEMENT_REFCOUNTING(CinderCEFRenderHandler);
+
 };
 
-#endif /* RenderHandler_h */
+#endif

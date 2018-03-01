@@ -27,6 +27,9 @@
 #include <Cocoa/Cocoa.h>
 #endif
 
+#include <cef_app.h>
+#include "cinder/Log.h"
+#include "cinderCEFRenderHandler.h"
 #include "cinderCEF.h"
 
 namespace coc {
@@ -122,41 +125,60 @@ void initCinderCEF(int argc, char **argv) {
 
 void CinderCEF::setup(string url, ci::ivec2 size) {
 
-    mRenderHandler = std::unique_ptr<CinderCEFRenderHandler>{
-        new CinderCEFRenderHandler{size.x, size.y}};
-
     CefWindowInfo windowInfo;
+    mRenderHandler = std::unique_ptr<CinderCEFRenderHandler>{
+            new CinderCEFRenderHandler{}};
 
 #if defined(TARGET_OSX)
-    NSWindow * cocoaWindow =  static_cast<NSWindow *>(getWindow()->getNative());
+
+    NSView * view =  (NSView *) getWindow()->getNative();
+    NSWindow * cocoaWindow = [ view window ];
     [cocoaWindow setReleasedWhenClosed:NO];
-
-    NSView * view =  [cocoaWindow contentView];
-
-    // in linux set a gtk widget, in windows a hwnd. If not available set
-    // nullptr - may cause some render errors, in context-menu and plugins.
-    // false means no transparency (site background colour)
-    //windowInfo.SetAsWindowless(nullptr);
     windowInfo.SetAsWindowless(view);
 
+
 #elif defined(TARGET_WIN32)
-    //HWND hWnd = static_cast<HWND>(getWindow()->getNative());
-    //windowInfo.SetAsWindowless(hWnd);
+    HWND hWnd = ofGetWin32Window();
+    windowInfo.SetAsWindowless(hWnd);
+#endif
 
-#endif // defined(TARGET_WIN32)
 
-    CefBrowserSettings browserSettings;
-    browserSettings.webgl = STATE_ENABLED;
-    browserSettings.windowless_frame_rate = 60;
-    browserSettings.background_color = 0x00FFFFFF;
-    browserSettings.web_security = STATE_DISABLED;
+    if (size.x <= 0 && size.y <= 0) {
+        fixedSize = true;//todo: false once resize enabled
+        width_ = size.x;
+        height_ = size.y;
 
-    //TODO reconcile with ofxCEF
+#if defined(TARGET_OSX)
+        if (mRenderHandler->bIsRetinaDisplay) { //todo: add
+            width_ = size.x*2;
+            height_ = size.y*2;
+        }
+#endif
+//        enableResize(); //todo: register resize event
+    }
+    else {
+        fixedSize = true;
+        width_ = size.x;
+        height_ = size.y;
+    }
+
+    // Tell the mRenderHandler about the size
+    // Do it before the using it in the browser client
+    mRenderHandler->reshape(width_, height_); //todo: equivalent needed?
+
+
+    CefBrowserSettings settings;
+    settings.webgl = STATE_ENABLED;
+    settings.windowless_frame_rate = 60;
+    settings.background_color = 0x00FFFFFF;
+    settings.web_security = STATE_DISABLED;
+
     mBrowserClient = new CinderCEFBrowserClient{this, mRenderHandler.get()};
+    CefBrowserHost::CreateBrowser(windowInfo, mBrowserClient.get(), url, settings, NULL);
     mBrowser = CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(),
             url, CefBrowserSettings{}, nullptr);
 
-    if (!mBrowserClient) { std::cout << "client pointer is null"; }
+    if(!mBrowserClient) { CI_LOG_E( "client pointer is NULL" ); }
 }
 
 void CinderCEF::registerEvents() {
@@ -309,20 +331,46 @@ void CinderCEF::update() {
 void CinderCEF::draw( ci::vec2  pos ) {
     if (!isReady()) { return; }
 
-    gl::draw(getTexture(), pos);
+    int x = 0;
+    int y = 0;
+    int w = width_;
+    int h = height_;
+
+    gl::VertBatchRef vb = gl::VertBatch::create(GL_TRIANGLE_STRIP);
+    vb->vertex( vec2(x,y) );
+    vb->texCoord( vec2(0,0) );
+    vb->vertex( vec2(x+w,y) );
+    vb->texCoord( vec2(1,0) );
+    vb->vertex( vec2(x,y+h) );
+    vb->texCoord( vec2(0,1) );
+    vb->vertex( vec2(x+w,y+h) );
+    vb->texCoord( vec2(1,1) );
+
+    gl::pushModelMatrix();
+    
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, mRenderHandler->texture_id_);
+    // Use Texture Filtering GL_LINEAR
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    vb->draw();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+
+    gl::popModelMatrix();
 
     // TODO implement cursor changes, see CefRenderHandler::OnCursorChange
 }
 
-ci::gl::TextureRef CinderCEF::getTexture()
-{
-    return mRenderHandler->getTexture();
-}
-
+//ci::gl::TextureRef CinderCEF::getTexture()
+//{
+//    return mRenderHandler->getTexture();
+//}
+//
 void CinderCEF::resize( ci::ivec2 size ) {
     //TODO this doesn't work fully
 
-    mRenderHandler->resize(size.x,size.y);
+    mRenderHandler->reshape(size.x,size.y);
 
     // Check host is available
     if (mBrowser == nullptr) { return; }

@@ -53,7 +53,7 @@ public:
     void executeJS(const std::string& command);
     void notificationHandler();
 
-    ci::gl::TextureRef getTexture();
+    //ci::gl::TextureRef getTexture();
     void registerEvents();
     void unregisterEvents();
     void onLoadStart();
@@ -79,6 +79,9 @@ public:
     void mouseDrag( ci::app::MouseEvent event );
 
 private:
+
+    bool fixedSize;
+    float width_, height_;
 
     CefRefPtr<CefBrowser> browser() const { return mBrowserClient->GetBrowser(); }
 
