@@ -31,9 +31,6 @@ void CEFCinderSampleApp::update() {
 void CEFCinderSampleApp::draw() {
     gl::clear(Color{1, 0, 0});
 
-    static float count = 0;
-    gl::drawSolidCircle(vec2{250, 250}, sin(count++ / 180));
-
     mWebViewWrapper.draw();
 }
 
