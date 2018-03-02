@@ -37,4 +37,9 @@ void CEFCinderSampleApp::draw() {
     mWebViewWrapper.draw();
 }
 
-CINDER_APP(CEFCinderSampleApp, RendererGl)
+void prepareSettings(App::Settings *settings) {
+    char *argv[] = {};
+    coc::initCinderCEF(0, argv);
+}
+
+CINDER_APP(CEFCinderSampleApp, RendererGl, &prepareSettings)
