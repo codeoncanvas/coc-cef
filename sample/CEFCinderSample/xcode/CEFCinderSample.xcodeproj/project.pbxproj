@@ -69,8 +69,6 @@
 		6B05E9AB2048EC2100AC9520 /* cinderCEFClientApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cinderCEFClientApp.h; sourceTree = "<group>"; };
 		6B05E9AC2048EC2100AC9520 /* cinderCEF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cinderCEF.h; sourceTree = "<group>"; };
 		6B05E9AD2048EC2100AC9520 /* cinderCEFV8ExtensionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cinderCEFV8ExtensionHandler.h; sourceTree = "<group>"; };
-		6B05E9AE2048EC2100AC9520 /* process_helper_mac.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = process_helper_mac.cpp; sourceTree = "<group>"; };
-		6B05E9AF2048EC2100AC9520 /* browser_client.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = browser_client.hpp; sourceTree = "<group>"; };
 		6B05E9BA2048EC2D00AC9520 /* cef_render_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cef_render_handler.h; sourceTree = "<group>"; };
 		6B05E9BB2048EC2D00AC9520 /* cef_pack_strings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cef_pack_strings.h; sourceTree = "<group>"; };
 		6B05E9BC2048EC2D00AC9520 /* cef_response_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cef_response_filter.h; sourceTree = "<group>"; };
@@ -460,8 +458,6 @@
 				6B05E9AB2048EC2100AC9520 /* cinderCEFClientApp.h */,
 				6B05E9AC2048EC2100AC9520 /* cinderCEF.h */,
 				6B05E9AD2048EC2100AC9520 /* cinderCEFV8ExtensionHandler.h */,
-				6B05E9AE2048EC2100AC9520 /* process_helper_mac.cpp */,
-				6B05E9AF2048EC2100AC9520 /* browser_client.hpp */,
 			);
 			name = src;
 			path = ../../../src;
