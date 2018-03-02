@@ -131,7 +131,7 @@ void CinderCEF::update() {
 void CinderCEF::setup(string url, ci::ivec2 size) {
 
     CefWindowInfo windowInfo;
-    mRenderHandler = new CinderCEFRenderHandler{};
+    mRenderHandler = new CinderCEFRenderHandler{ size.x, size.y };
 
 #if defined(TARGET_OSX)
 
@@ -358,10 +358,10 @@ void CinderCEF::draw( ci::vec2  pos ) {
     // TODO implement cursor changes, see CefRenderHandler::OnCursorChange
 }
 
-//ci::gl::TextureRef CinderCEF::getTexture()
-//{
-//    return mRenderHandler->getTexture();
-//}
+ci::gl::TextureRef CinderCEF::getTexture()
+{
+    return mRenderHandler->getTexture();
+}
 
 void CinderCEF::resize( ci::ivec2 size ) {
     //TODO this doesn't work fully

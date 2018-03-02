@@ -15,14 +15,13 @@
 
 class CinderCEFRenderHandler : public CefRenderHandler {
 public:
-    CinderCEFRenderHandler() {}
-    //CinderCEFRenderHandler(int width, int height) : mWidth{width}, mHeight{height} {
-    //    const size_t bufferSize = mWidth * mHeight * 4;
-    //    mBuffer = std::unique_ptr<uint8_t>{new uint8_t[bufferSize]};
-    //    memset(mBuffer.get(), 0, bufferSize);
-    //    mTex = ci::gl::Texture::create(mBuffer.get(), GL_BGRA, mWidth, mHeight);
-    //    mTex->setTopDown();  // specified to flip pixels vertically
-    //}
+    CinderCEFRenderHandler(int width, int height) : mWidth{width}, mHeight{height} {
+        const size_t bufferSize = mWidth * mHeight * 4;
+        mBuffer = std::unique_ptr<uint8_t>{new uint8_t[bufferSize]};
+        memset(mBuffer.get(), 0, bufferSize);
+        mTex = ci::gl::Texture::create(mBuffer.get(), GL_BGRA, mWidth, mHeight);
+        mTex->setTopDown();  // specified to flip pixels vertically
+    }
 
     // Retrieve the view rectangle which is relative to screen coordinates
     // returns `true` if the rectangle was provided.
@@ -46,21 +45,21 @@ public:
             int width, int height) override {
 
         std::cout << "onPaint \t" << mWidth << ", " << mHeight << std::endl;
-        //mTex->update(buffer, GL_BGRA, GL_UNSIGNED_BYTE, 0, width, height);
+        mTex->update(buffer, GL_BGRA, GL_UNSIGNED_BYTE, 0, width, height);
     }
 
-    //ci::gl::TextureRef getTexture() { return mTex; }
+    ci::gl::TextureRef getTexture() { return mTex; }
 
-    //void reshape(int width, int height) {
-    //    mWidth = width;
-    //    mHeight = height;
-    //}
+    void reshape(int width, int height) {
+        mWidth = width;
+        mHeight = height;
+    }
 
 private:
-    int mWidth = 640;
-    int mHeight = 480;
-    //ci::gl::TextureRef mTex;
-    //std::unique_ptr<uint8_t> mBuffer;
+    int mWidth;
+    int mHeight;
+    ci::gl::TextureRef mTex;
+    std::unique_ptr<uint8_t> mBuffer;
 
 
     IMPLEMENT_REFCOUNTING(CinderCEFRenderHandler);
