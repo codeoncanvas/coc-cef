@@ -324,7 +324,7 @@ void CinderCEF::mouseDrag( MouseEvent event ) {
 void CinderCEF::draw( ci::vec2  pos ) {
     if (!isReady()) { return; }
 
-    gl::TextureRef tex = mWebViewWrapper.getTexture();
+    gl::TextureRef tex = getTexture();
     if (tex) gl::draw( tex );
 
     // TODO implement cursor changes, see CefRenderHandler::OnCursorChange
