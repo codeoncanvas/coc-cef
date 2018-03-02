@@ -1,22 +1,3 @@
-/**
- *
- *      ┌─┐╔═╗┌┬┐┌─┐
- *      │  ║ ║ ││├┤
- *      └─┘╚═╝─┴┘└─┘
- *   ┌─┐┌─┐╔╗╔┬  ┬┌─┐┌─┐
- *   │  ├─┤║║║└┐┌┘├─┤└─┐
- *   └─┘┴ ┴╝╚╝ └┘ ┴ ┴└─┘
- *
- * Copyright (c) 2018 Code on Canvas Pty Ltd, http://CodeOnCanvas.cc
- *
- * This software is distributed under the MIT license
- * https://tldrlegal.com/license/mit-license
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code
- *
- **/
-
 #define TARGET_OSX CINDER_COCOA
 #define TARGET_WIN32 CINDER_MSW
 
@@ -37,6 +18,7 @@ namespace coc {
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+
 
 void initCinderCEF(int argc, char **argv) {
 
@@ -165,7 +147,7 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
 
     // Tell the mRenderHandler about the size
     // Do it before the using it in the browser client
-    //mRenderHandler->reshape(width_, height_); //todo: equivalent needed?
+    mRenderHandler->reshape(width_, height_); //todo: equivalent needed?
 
 
     CefBrowserSettings settings;
@@ -175,9 +157,9 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     settings.web_security = STATE_DISABLED;
 
     mBrowserClient = new CinderCEFBrowserClient{this, mRenderHandler};
-    CefBrowserHost::CreateBrowser(windowInfo, mBrowserClient.get(), url, settings, NULL);
-    mBrowser = CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(),
-            url, settings, nullptr);
+    CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(), url, settings, NULL);
+    //mBrowser = CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(),
+    //        url, settings, nullptr);
 
     if(!mBrowserClient) { CI_LOG_E( "client pointer is NULL" ); }
 }
@@ -203,11 +185,16 @@ void CinderCEF::unregisterEvents() {
     //getWindow()->getSignalMouseDrag().disconnect( signals::slot( this, &CinderCEF::mouseDrag) );
 }
 
+void CinderCEF::enableResize(){
+    //ofAddListener(ofEvents().windowResized, this, &ofxCEF::windowResized);
+    getWindow()->getSignalResize().connect( signals::slot( this, &CinderCEF::windowResized) );
+}
+
 void CinderCEF::keyDown( KeyEvent event ) {
 
     // Check host is available
-    if (mBrowser == nullptr) { return; }
-    const auto browserHost = mBrowser->GetHost();
+    if (browser() == nullptr) { return; }
+    const auto browserHost = browser()->GetHost();
     if (browserHost == nullptr) { return; }
 
     CefKeyEvent cefKeyEvent;
@@ -230,8 +217,8 @@ void CinderCEF::keyDown( KeyEvent event ) {
 void CinderCEF::keyUp( KeyEvent event ) {
 
     // Check host is available
-    if (mBrowser == nullptr) { return; }
-    const auto browserHost = mBrowser->GetHost();
+    if (browser() == nullptr) { return; }
+    const auto browserHost = browser()->GetHost();
     if (browserHost == nullptr) { return; }
 
     CefKeyEvent cefKeyEvent;
@@ -251,7 +238,7 @@ void CinderCEF::keyUp( KeyEvent event ) {
 
 void CinderCEF::mouseDown( MouseEvent event ) {
 
-    const auto browserHost = mBrowser->GetHost();
+    const auto browserHost = browser()->GetHost();
     if (browserHost == nullptr) { return; }
 
     const auto mouseButtonType =
@@ -265,14 +252,24 @@ void CinderCEF::mouseDown( MouseEvent event ) {
     cefMouseEvent.y = event.getY();
     cefMouseEvent.modifiers = event.getNativeModifiers();
 
-    mBrowser->GetHost()->SendMouseClickEvent(cefMouseEvent, mouseButtonType, false, 1);
+    browser()->GetHost()->SendMouseClickEvent(cefMouseEvent, mouseButtonType, false, 1);
+}
+
+void CinderCEF::windowResized(){
+    if (!fixedSize) {
+        width_ = getWindowWidth();
+        height_ = getWindowHeight();
+        reshape(vec2{width_, height_});
+        //mRenderHandler->init();  // not implemented
+    }
+    //cefgui->browser->Reload();
 }
 
 void CinderCEF::mouseUp( MouseEvent event ) {
 
     // Check host is available
-    if (mBrowser == nullptr) { return; }
-    const auto browserHost = mBrowser->GetHost();
+    if (browser() == nullptr) { return; }
+    const auto browserHost = browser()->GetHost();
     if (browserHost == nullptr) { return; }
 
     const auto mouseButtonType =
@@ -285,14 +282,14 @@ void CinderCEF::mouseUp( MouseEvent event ) {
     cefMouseEvent.y = event.getY();
     cefMouseEvent.modifiers = event.getNativeModifiers();
 
-    mBrowser->GetHost()->SendMouseClickEvent(cefMouseEvent, mouseButtonType, true, 1);
+    browser()->GetHost()->SendMouseClickEvent(cefMouseEvent, mouseButtonType, true, 1);
 }
 
 void CinderCEF::mouseWheel( MouseEvent event ) {
 
     // Check host is available
-    if (mBrowser == nullptr) { return; }
-    const auto browserHost = mBrowser->GetHost();
+    if (browser() == nullptr) { return; }
+    const auto browserHost = browser()->GetHost();
     if (browserHost == nullptr) { return; }
 
     const int deltaY = std::round(event.getWheelIncrement() * mScrollSensitivity);
@@ -302,14 +299,14 @@ void CinderCEF::mouseWheel( MouseEvent event ) {
     cefMouseEvent.y = event.getY();
     cefMouseEvent.modifiers = event.getNativeModifiers();
 
-    mBrowser->GetHost()->SendMouseWheelEvent(cefMouseEvent, 0, deltaY);
+    browser()->GetHost()->SendMouseWheelEvent(cefMouseEvent, 0, deltaY);
 }
 
 void CinderCEF::mouseMove( MouseEvent event ) {
 
     // Check host is available
-    if (mBrowser == nullptr) { return; }
-    const auto browserHost = mBrowser->GetHost();
+    if (browser() == nullptr) { return; }
+    const auto browserHost = browser()->GetHost();
     if (browserHost == nullptr) { return; }
 
     CefMouseEvent cefMouseEvent;
@@ -327,33 +324,8 @@ void CinderCEF::mouseDrag( MouseEvent event ) {
 void CinderCEF::draw( ci::vec2  pos ) {
     if (!isReady()) { return; }
 
-//    int x = 0;
-//    int y = 0;
-//    int w = width_;
-//    int h = height_;
-//
-//    gl::VertBatchRef vb = gl::VertBatch::create(GL_TRIANGLE_STRIP);
-//    vb->vertex( vec2(x,y) );
-//    vb->texCoord( vec2(0,0) );
-//    vb->vertex( vec2(x+w,y) );
-//    vb->texCoord( vec2(1,0) );
-//    vb->vertex( vec2(x,y+h) );
-//    vb->texCoord( vec2(0,1) );
-//    vb->vertex( vec2(x+w,y+h) );
-//    vb->texCoord( vec2(1,1) );
-//
-//    gl::pushModelMatrix();
-//
-//    glEnable(GL_TEXTURE_2D);
-//    glBindTexture(GL_TEXTURE_2D, mRenderHandler->texture_id_);
-//    // Use Texture Filtering GL_LINEAR
-//    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//    vb->draw();
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//    glDisable(GL_TEXTURE_2D);
-//
-//    gl::popModelMatrix();
+    gl::TextureRef tex = mWebViewWrapper.getTexture();
+    if (tex) gl::draw( tex );
 
     // TODO implement cursor changes, see CefRenderHandler::OnCursorChange
 }
@@ -363,14 +335,14 @@ ci::gl::TextureRef CinderCEF::getTexture()
     return mRenderHandler->getTexture();
 }
 
-void CinderCEF::resize( ci::ivec2 size ) {
+void CinderCEF::reshape( ci::ivec2 size ) {
     //TODO this doesn't work fully
 
     //mRenderHandler->reshape(size.x,size.y);
 
     // Check host is available
-    if (mBrowser == nullptr) { return; }
-    const auto browserHost = mBrowser->GetHost();
+    if (browser() == nullptr) { return; }
+    const auto browserHost = browser()->GetHost();
     if (browserHost == nullptr) { return; }
 
     browserHost->WasResized();
@@ -392,7 +364,7 @@ void CinderCEF::onLoadEnd(int httpStatusCode) {
 //}
 
 void CinderCEF::executeJS(const string& command){
-    if (mBrowser == nullptr) { return; }
+    if (browser() == nullptr) { return; }
 
     CefRefPtr<CefFrame> frame = browser()->GetMainFrame();
     frame->ExecuteJavaScript(command, frame->GetURL(), 0);
@@ -403,7 +375,7 @@ void CinderCEF::cleanup() {
 
     // Shut down CEF.
     if (browser()) {
-        mBrowser->GetHost()->CloseBrowser(true);
+        browser()->GetHost()->CloseBrowser(true);
     }
 
     // The following call to CefShutdown make the app crash on OS X. Still not working on Windows neither.
