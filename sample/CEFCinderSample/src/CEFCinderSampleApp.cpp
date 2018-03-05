@@ -14,29 +14,26 @@ public:
     void update() override;
     void draw() override;
 
-    coc::CinderCEF mWebViewWrapper;
+    coc::CinderCEF cefView;
 };
 
 void CEFCinderSampleApp::setup() {
-    mWebViewWrapper.setup("codeoncanvas.cc", getWindowSize());
-    mWebViewWrapper.registerEvents();
+	coc::initCinderCEF();
+    cefView.setup("http://duckduckgo.com", getWindowSize());
+    cefView.registerEvents();
 }
 
 void CEFCinderSampleApp::mouseDown(MouseEvent event) {}
 
 void CEFCinderSampleApp::update() {
-    mWebViewWrapper.update();
+    coc::updateCEF();
 }
 
 void CEFCinderSampleApp::draw() {
     gl::clear(Color{1, 0, 0});
 
-    mWebViewWrapper.draw();
+    cefView.draw();
 }
 
-void prepareSettings(App::Settings *settings) {
-    char *argv[] = {};
-    coc::initCinderCEF(0, argv);
-}
 
-CINDER_APP(CEFCinderSampleApp, RendererGl, &prepareSettings)
+CINDER_APP(CEFCinderSampleApp, RendererGl )

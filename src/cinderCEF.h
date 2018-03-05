@@ -20,13 +20,14 @@
 namespace coc {
 
 void initCinderCEF(int argc, char **argv);
+void initCinderCEF();
+void updateCEF();
 
 class CinderCEF {
 
 public:
     ~CinderCEF() { cleanup(); }
     void setup(std::string url, ci::ivec2 size);
-    void update();
     void draw(ci::vec2 pos = ci::vec2(0));
     void reshape( ci::ivec2 size );
     void cleanup();
@@ -50,8 +51,8 @@ public:
 
     //ofEvent<ofxCEFEventArgs> eventFromCEF;
 
-    bool mV8ContextCreated = false; // Don't set this
-    bool isReady() const { return mV8ContextCreated; } //&& mRenderHandler->initialized && browser(); }
+    bool V8ContextCreated = false; // Don't set this
+    bool isReady() const { return V8ContextCreated; } //&& mRenderHandler->initialized && browser(); }
 
     void keyDown( ci::app::KeyEvent event );
     void keyUp( ci::app::KeyEvent event );
@@ -66,16 +67,15 @@ private:
     bool fixedSize;
     float width_, height_;
 
-    CefRefPtr<CefBrowser> browser() const { return mBrowserClient->GetBrowser(); }
+    CefRefPtr<CefBrowser> browser() const { return client->GetBrowser(); }
 
-    CefRefPtr<CefBrowser> mBrowser;
-    CefRefPtr<CinderCEFBrowserClient> mBrowserClient;
-    CinderCEFRenderHandler* mRenderHandler;
+    CefRefPtr<CinderCEFBrowserClient> client;
+    CinderCEFRenderHandler* renderHandler;
 
-    CefRefPtr<CefListValue> mMessageFromJS;
+    CefRefPtr<CefListValue> messageFromJS;
 
-    static constexpr auto mScrollSensitivity = 50;  // set arbitrarily
-    const std::vector<int> mNonCharKeys = std::vector<int>{
+    static constexpr auto scrollSensitivity = 50;  // set arbitrarily
+    const std::vector<int> nonCharKeys = std::vector<int>{
             ci::app::KeyEvent::KEY_UP, ci::app::KeyEvent::KEY_DOWN,
             ci::app::KeyEvent::KEY_LEFT, ci::app::KeyEvent::KEY_RIGHT,
             ci::app::KeyEvent::KEY_HOME, ci::app::KeyEvent::KEY_END,

@@ -48,9 +48,9 @@ bool CinderCEFBrowserClient::OnProcessMessageReceived(
         //mParent->bindCallFromJS(args);
         return true;
     } else if (name == "OnV8ContextCreated") {
-        mParent->mV8ContextCreated = true;
+        mParent->V8ContextCreated = true;
     } else if (name == "OnV8ContextReleased") {
-        mParent->mV8ContextCreated = false;
+        mParent->V8ContextCreated = false;
     }
 
     return true;

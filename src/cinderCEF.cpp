@@ -104,7 +104,12 @@ void initCinderCEF(int argc, char **argv) {
     if (not didInitialize) { throw std::runtime_error{"CEF process execution failed"}; }
 }
 
-void CinderCEF::update() {
+void initCinderCEF() {
+    char *argv[] = {};
+    coc::initCinderCEF(0, argv);
+}
+
+void updateCEF() {
     // Single iteration of message loop, does not block
     CefDoMessageLoopWork();
 }
@@ -113,7 +118,7 @@ void CinderCEF::update() {
 void CinderCEF::setup(string url, ci::ivec2 size) {
 
     CefWindowInfo windowInfo;
-    mRenderHandler = new CinderCEFRenderHandler{ size.x, size.y };
+    renderHandler = new CinderCEFRenderHandler{ size.x, size.y };
 
 #if defined(TARGET_OSX)
 
@@ -147,7 +152,7 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
 
     // Tell the mRenderHandler about the size
     // Do it before the using it in the browser client
-    mRenderHandler->reshape(width_, height_); //todo: equivalent needed?
+    renderHandler->reshape(width_, height_); //todo: equivalent needed?
 
 
     CefBrowserSettings settings;
@@ -156,12 +161,10 @@ void CinderCEF::setup(string url, ci::ivec2 size) {
     settings.background_color = 0x00FFFFFF;
     settings.web_security = STATE_DISABLED;
 
-    mBrowserClient = new CinderCEFBrowserClient{this, mRenderHandler};
-    CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(), url, settings, NULL);
-    //mBrowser = CefBrowserHost::CreateBrowserSync(windowInfo, mBrowserClient.get(),
-    //        url, settings, nullptr);
+    client = new CinderCEFBrowserClient{this, renderHandler};
+    CefBrowserHost::CreateBrowser(windowInfo, client.get(), url, settings, NULL);//was CreateBrowserSync
 
-    if(!mBrowserClient) { CI_LOG_E( "client pointer is NULL" ); }
+    if(!client) { CI_LOG_E( "client pointer is NULL" ); }
 }
 
 void CinderCEF::registerEvents() {
@@ -201,7 +204,7 @@ void CinderCEF::keyDown( KeyEvent event ) {
 
     // hack inherited from ofxCEF
     // https://github.com/ofZach/ofxCef/blame/master/src/ofxCEF.cpp#L425
-    if (std::any_of(mNonCharKeys.cbegin(), mNonCharKeys.cend(),
+    if (std::any_of(nonCharKeys.cbegin(), nonCharKeys.cend(),
             [&event](int k){ return k == event.getCode(); })) {
         cefKeyEvent.type = KEYEVENT_KEYDOWN;
 
@@ -223,7 +226,7 @@ void CinderCEF::keyUp( KeyEvent event ) {
 
     CefKeyEvent cefKeyEvent;
 
-    if (std::any_of(mNonCharKeys.cbegin(), mNonCharKeys.cend(),
+    if (std::any_of(nonCharKeys.cbegin(), nonCharKeys.cend(),
             [&event](int key){ return key == event.getCode(); })) {
         cefKeyEvent.type = KEYEVENT_CHAR;
         cefKeyEvent.character = event.getChar();
@@ -292,7 +295,7 @@ void CinderCEF::mouseWheel( MouseEvent event ) {
     const auto browserHost = browser()->GetHost();
     if (browserHost == nullptr) { return; }
 
-    const int deltaY = std::round(event.getWheelIncrement() * mScrollSensitivity);
+    const int deltaY = std::round(event.getWheelIncrement() * scrollSensitivity);
 
     CefMouseEvent cefMouseEvent;
     cefMouseEvent.x = event.getX();
@@ -332,7 +335,7 @@ void CinderCEF::draw( ci::vec2  pos ) {
 
 ci::gl::TextureRef CinderCEF::getTexture()
 {
-    return mRenderHandler->getTexture();
+    return renderHandler->getTexture();
 }
 
 void CinderCEF::reshape( ci::ivec2 size ) {
