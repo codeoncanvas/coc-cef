@@ -42,6 +42,7 @@ void CefWrapper::setup( string url, ci::ivec2 size ) {
 	// http://magpcss.org/ceforum/apidocs/projects/%28default%29/_cef_settings_t.html
 	CefSettings settings;
 	settings.windowless_rendering_enabled = true;
+    settings.remote_debugging_port = 8088;
 	const auto didInitialize = CefInitialize(mainArgs, settings, nullptr, nullptr);
 	if (not didInitialize) {}  // handle error here
 
