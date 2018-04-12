@@ -20,7 +20,7 @@ public:
     void resize() override;
     void cleanup() override;
     
-    coc::CefWrapper wrapper
+    coc::CefWrapper wrapper;
 };
 
 void cocCefSample::setup() {
